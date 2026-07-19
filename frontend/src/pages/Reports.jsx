@@ -63,7 +63,7 @@ const Reports = () => {
     <div className="d-flex flex-column gap-4">
       <div className="d-flex justify-content-between align-items-center">
         <div>
-          <h4 className="fw-bold text-white mb-1">Reports & Ledger Summaries</h4>
+          <h4 className="fw-bold text-black mb-1">Reports & Ledger Summaries</h4>
           <p className="text-secondary mb-0 fs-7">Generate data exports and print inventory reports.</p>
         </div>
         <div className="d-flex gap-2">
@@ -107,7 +107,7 @@ const Reports = () => {
                     {data.length > 0 ? (
                       data.map((book) => (
                         <tr key={book.id}>
-                          <td className="fw-bold text-white">{book.title}</td>
+                          <td className="fw-bold text-black">{book.title}</td>
                           <td>{book.isbn}</td>
                           <td>{book.author_name}</td>
                           <td>{book.category_name}</td>
@@ -174,7 +174,7 @@ const Reports = () => {
                     {data.length > 0 ? (
                       data.map((tx) => (
                         <tr key={tx.id}>
-                          <td className="fw-bold text-white">{tx.book_title}</td>
+                          <td className="fw-bold text-black">{tx.book_title}</td>
                           <td>{tx.student_name}</td>
                           <td className="text-warning">{tx.student_roll}</td>
                           <td>{new Date(tx.issued_date).toLocaleDateString()}</td>

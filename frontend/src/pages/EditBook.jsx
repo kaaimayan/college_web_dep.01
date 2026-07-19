@@ -19,6 +19,7 @@ const EditBook = () => {
     year: '',
     language: 'English',
     shelf_location: '',
+    download_url: '',
     description: ''
   });
   const [coverFile, setCoverFile] = useState(null);
@@ -43,6 +44,7 @@ const EditBook = () => {
           year: book.year || '',
           language: book.language || 'English',
           shelf_location: book.shelf_location || '',
+          download_url: book.download_url || '',
           description: book.description || ''
         });
         if (book.cover_image) {
@@ -192,6 +194,12 @@ const EditBook = () => {
                     <img src={coverPreview} alt="preview" className="rounded-3 border border-secondary" style={{ width: '50px', height: '65px', objectFit: 'cover' }} />
                   )}
                 </div>
+              </div>
+
+              {/* Online Book URL */}
+              <div className="mb-3">
+                <label className="form-label text-secondary fs-7 fw-semibold">DOWNLOAD LINK (FOR ONLINE BOOKS / E-BOOKS)</label>
+                <input type="url" name="download_url" className="form-control custom-input" placeholder="e.g. https://example.com/book.pdf" value={formData.download_url} onChange={handleChange} />
               </div>
             </div>
 

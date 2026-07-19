@@ -1,5 +1,7 @@
 const Student = require('../models/Student');
 const User = require('../models/User');
+const pool = require('../config/db');
+const { hashPassword } = require('../utils/hashPassword');
 
 const studentController = {
   getAllStudents: async (req, res) => {
@@ -9,6 +11,41 @@ const studentController = {
     } catch (err) {
       console.error('Get all students error:', err);
       res.status(500).json({ message: 'Server error fetching students list.' });
+    }
+  },
+
+  getTopBorrowers: async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 10;
+      const [rows] = await pool.query(`
+        SELECT 
+          s.id,
+          s.student_id,
+          s.name,
+          s.email,
+          s.department,
+          s.year,
+          s.photo,
+          COUNT(ib.id) AS total_borrowed,
+          COUNT(CASE WHEN ib.status = 'issued' THEN 1 END) AS active_borrowed,
+          COUNT(CASE WHEN ib.status = 'returned' THEN 1 END) AS returned_count
+        FROM students s
+        LEFT JOIN issued_books ib ON s.id = ib.student_id
+        GROUP BY s.id
+        ORDER BY total_borrowed DESC, s.name ASC
+        LIMIT ?
+      `, [limit]);
+
+      const rankedStudents = rows.map((student, idx) => ({
+        ...student,
+        rank: idx + 1,
+        is_top_student: idx === 0 && Number(student.total_borrowed) > 0
+      }));
+
+      res.status(200).json(rankedStudents);
+    } catch (err) {
+      console.error('Get top borrowers error:', err);
+      res.status(500).json({ message: 'Server error fetching top borrowers ranking.' });
     }
   },
 
@@ -46,6 +83,18 @@ const studentController = {
         student_id, name, email, phone, department, year, address, photo
       });
 
+      // Also create corresponding user account for student login if not existing
+      const existingUser = await User.findByEmail(email);
+      if (!existingUser) {
+        const hashedPassword = await hashPassword('student123');
+        await User.create({
+          name,
+          email,
+          password: hashedPassword,
+          role: 'student'
+        });
+      }
+
       // Log action
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       await User.logActivity(req.user.id, 'STUDENT_CREATE', `Added student: ${name} (${student_id})`, ip);
@@ -80,7 +129,7 @@ const studentController = {
 
       const photo = req.file ? `/uploads/students/${req.file.filename}` : undefined;
 
-      const updated = await Student.update(studentId, {
+      await Student.update(studentId, {
         student_id, name, email, phone, department, year, address, photo, is_active
       });
 

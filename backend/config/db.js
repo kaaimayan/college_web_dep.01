@@ -13,11 +13,23 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
-// Test connection
+// Test connection & run self-healing schema migrations
 (async () => {
   try {
     const connection = await pool.getConnection();
     console.log('Database connected successfully as ID ' + connection.threadId);
+    
+    // Self-healing migration: add download_url if not exists
+    try {
+      await connection.query("ALTER TABLE books ADD COLUMN download_url VARCHAR(255) DEFAULT NULL");
+      console.log('Database migration: Added download_url column to books table.');
+    } catch (err) {
+      // 1060 is "Duplicate column name", safe to ignore
+      if (err.errno !== 1060 && err.code !== 'ER_DUP_FIELDNAME') {
+        console.error('Database migration failed for books.download_url:', err);
+      }
+    }
+
     connection.release();
   } catch (err) {
     console.error('Database connection failed:', err.message);

@@ -46,7 +46,7 @@ const DashboardCard = ({ title, value, icon, color = 'var(--accent-gold)' }) => 
           <span className="text-secondary fw-semibold text-uppercase fs-8 mb-2 d-block" style={{ letterSpacing: '1px' }}>
             {title}
           </span>
-          <h2 className="fw-bold mb-0 text-white" style={{ fontSize: '32px' }}>
+          <h2 className="fw-bold mb-0 text-black" style={{ fontSize: '32px' }}>
             {value}
           </h2>
         </div>

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { LogoSVG } from './Navbar';
 import { 
   FaBook, FaUserGraduate, FaHandHolding, FaUndo, 
-  FaCalendarAlt, FaMoneyBill, FaChartBar, FaUser, FaCog, FaChevronDown, FaChevronUp
+  FaCalendarAlt, FaMoneyBill, FaChartBar, FaUser, FaCog, FaChevronDown, FaChevronUp, FaTrophy
 } from 'react-icons/fa';
 import { MdDashboard } from 'react-icons/md';
 
@@ -13,6 +13,8 @@ const Sidebar = ({ show, onToggleSidebar }) => {
   const location = useLocation();
   const [booksOpen, setBooksOpen] = useState(location.pathname.startsWith('/books'));
   const [studentsOpen, setStudentsOpen] = useState(location.pathname.startsWith('/students'));
+
+  const isStudent = user?.role === 'student';
 
   const toggleBooks = (e) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ const Sidebar = ({ show, onToggleSidebar }) => {
           onClick={handleLinkClick}
         >
           <MdDashboard size={20} />
-          <span>Dashboard</span>
+          <span>{isStudent ? 'Student Dashboard' : 'Dashboard'}</span>
         </NavLink>
 
         {/* Books Menu */}
@@ -62,7 +64,7 @@ const Sidebar = ({ show, onToggleSidebar }) => {
           >
             <div className="d-flex align-items-center gap-3">
               <FaBook size={18} />
-              <span>Book Catalog</span>
+              <span>{isStudent ? 'Browse Books' : 'Book Catalog'}</span>
             </div>
             {booksOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
           </a>
@@ -75,20 +77,22 @@ const Sidebar = ({ show, onToggleSidebar }) => {
                 className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
                 onClick={handleLinkClick}
               >
-                All Books
+                {isStudent ? 'All & E-Books' : 'All Books'}
               </NavLink>
-              <NavLink 
-                to="/books/add" 
-                className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
-                onClick={handleLinkClick}
-              >
-                Add Book
-              </NavLink>
+              {!isStudent && (
+                <NavLink 
+                  to="/books/add" 
+                  className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
+                  onClick={handleLinkClick}
+                >
+                  Add Book
+                </NavLink>
+              )}
             </div>
           )}
         </div>
 
-        {/* Students Menu */}
+        {/* Students Menu - View only for Student, Full access for Staff */}
         <div>
           <a 
             href="#studentsMenu" 
@@ -97,7 +101,7 @@ const Sidebar = ({ show, onToggleSidebar }) => {
           >
             <div className="d-flex align-items-center gap-3">
               <FaUserGraduate size={18} />
-              <span>Students</span>
+              <span>{isStudent ? 'Top Rankings' : 'Students'}</span>
             </div>
             {studentsOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
           </a>
@@ -110,64 +114,81 @@ const Sidebar = ({ show, onToggleSidebar }) => {
                 className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
                 onClick={handleLinkClick}
               >
-                All Students
+                {isStudent ? 'Top Student Rankings' : 'All Students'}
               </NavLink>
-              <NavLink 
-                to="/students/add" 
-                className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
-                onClick={handleLinkClick}
-              >
-                Add Student
-              </NavLink>
+              {!isStudent && (
+                <NavLink 
+                  to="/students/add" 
+                  className={({ isActive }) => `app-sidebar-item py-2 fs-7 ${isActive ? 'active' : ''}`}
+                  onClick={handleLinkClick}
+                >
+                  Add Student
+                </NavLink>
+              )}
             </div>
           )}
         </div>
 
-        {/* Transactions list */}
-        <NavLink 
-          to="/issue" 
-          className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
-          onClick={handleLinkClick}
-        >
-          <FaHandHolding size={18} />
-          <span>Issue Book</span>
-        </NavLink>
+        {/* Transactions / Student Specific links */}
+        {!isStudent ? (
+          <>
+            <NavLink 
+              to="/issue" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaHandHolding size={18} />
+              <span>Issue Book</span>
+            </NavLink>
 
-        <NavLink 
-          to="/return" 
-          className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
-          onClick={handleLinkClick}
-        >
-          <FaUndo size={18} />
-          <span>Return Book</span>
-        </NavLink>
+            <NavLink 
+              to="/return" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaUndo size={18} />
+              <span>Return Book</span>
+            </NavLink>
 
-        <NavLink 
-          to="/reservations" 
-          className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
-          onClick={handleLinkClick}
-        >
-          <FaCalendarAlt size={18} />
-          <span>Reservations</span>
-        </NavLink>
+            <NavLink 
+              to="/reservations" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaCalendarAlt size={18} />
+              <span>Reservations</span>
+            </NavLink>
 
-        <NavLink 
-          to="/fines" 
-          className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
-          onClick={handleLinkClick}
-        >
-          <FaMoneyBill size={18} />
-          <span>Fine Registry</span>
-        </NavLink>
+            <NavLink 
+              to="/fines" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaMoneyBill size={18} />
+              <span>Fine Registry</span>
+            </NavLink>
 
-        <NavLink 
-          to="/reports" 
-          className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
-          onClick={handleLinkClick}
-        >
-          <FaChartBar size={18} />
-          <span>Reports & Stats</span>
-        </NavLink>
+            <NavLink 
+              to="/reports" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaChartBar size={18} />
+              <span>Reports & Stats</span>
+            </NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink 
+              to="/reservations" 
+              className={({ isActive }) => `app-sidebar-item ${isActive ? 'active' : ''}`}
+              onClick={handleLinkClick}
+            >
+              <FaCalendarAlt size={18} />
+              <span>My Borrowings & Reservations</span>
+            </NavLink>
+          </>
+        )}
 
         <NavLink 
           to="/profile" 
@@ -190,8 +211,8 @@ const Sidebar = ({ show, onToggleSidebar }) => {
 
       {/* Footer Role Display */}
       <div className="pt-3 border-top border-secondary text-center">
-        <span className="badge bg-warning text-dark fw-bold uppercase py-2 px-3 w-100 rounded-3">
-          {user?.role === 'admin' ? 'ADMIN PRIVILEGES' : 'LIBRARIAN'}
+        <span className={`badge ${isStudent ? 'bg-info text-dark' : 'bg-warning text-dark'} fw-bold uppercase py-2 px-3 w-100 rounded-3`}>
+          {user?.role === 'admin' ? 'ADMIN PRIVILEGES' : isStudent ? `STUDENT PORTAL (${user?.student_id || 'PATRON'})` : 'LIBRARIAN'}
         </span>
       </div>
     </aside>

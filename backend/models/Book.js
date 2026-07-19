@@ -58,20 +58,20 @@ const Book = {
   create: async (bookData) => {
     const {
       title, isbn, author_id, category_id, publisher_id,
-      total_copies, available_copies, cover_image, description,
+      total_copies, available_copies, cover_image, download_url, description,
       edition, year, language, shelf_location
     } = bookData;
 
     const [result] = await pool.query(
       `INSERT INTO books (
         title, isbn, author_id, category_id, publisher_id,
-        total_copies, available_copies, cover_image, description,
+        total_copies, available_copies, cover_image, download_url, description,
         edition, year, language, shelf_location
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         title, isbn, author_id, category_id, publisher_id,
         total_copies, available_copies !== undefined ? available_copies : total_copies,
-        cover_image || null, description, edition, year, language || 'English', shelf_location
+        cover_image || null, download_url || null, description, edition, year, language || 'English', shelf_location
       ]
     );
     return result.insertId;
@@ -80,7 +80,7 @@ const Book = {
   update: async (id, bookData) => {
     const {
       title, isbn, author_id, category_id, publisher_id,
-      total_copies, available_copies, cover_image, description,
+      total_copies, available_copies, cover_image, download_url, description,
       edition, year, language, shelf_location
     } = bookData;
 
@@ -88,12 +88,12 @@ const Book = {
       UPDATE books 
       SET title = ?, isbn = ?, author_id = ?, category_id = ?, publisher_id = ?,
           total_copies = ?, available_copies = ?, description = ?,
-          edition = ?, year = ?, language = ?, shelf_location = ?
+          edition = ?, year = ?, language = ?, shelf_location = ?, download_url = ?
     `;
     const params = [
       title, isbn, author_id, category_id, publisher_id,
       total_copies, available_copies, description,
-      edition, year, language, shelf_location
+      edition, year, language, shelf_location, download_url || null
     ];
 
     if (cover_image !== undefined) {

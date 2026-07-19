@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { getStudents, deleteStudent, searchStudents } from '../services/students';
+import { useAuth } from '../context/AuthContext';
 import SearchBar from '../components/SearchBar';
+import TopStudentCard from '../components/TopStudentCard';
 import Loader from '../components/Loader';
 import { Link } from 'react-router-dom';
-import { FaPlus, FaTrash, FaEdit, FaUserGraduate } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaUserGraduate, FaTrophy } from 'react-icons/fa';
 import Modal from '../components/Modal';
 
 const Students = () => {
+  const { user } = useAuth();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
+
+  const isStudent = user?.role === 'student';
 
   const fetchStudents = async () => {
     try {
@@ -53,14 +58,23 @@ const Students = () => {
 
   return (
     <div className="d-flex flex-column gap-4">
+      {/* Top Student Category Widget */}
+      <TopStudentCard />
+
       <div className="d-flex justify-content-between align-items-center">
         <div>
-          <h4 className="fw-bold text-white mb-1">Student Registry</h4>
-          <p className="text-secondary mb-0 fs-7">Manage student borrowing profiles and permissions.</p>
+          <h4 className="fw-bold text-white mb-1">
+            {isStudent ? 'Student Directory & Rankings' : 'Student Registry'}
+          </h4>
+          <p className="text-secondary mb-0 fs-7">
+            {isStudent ? 'View student profiles and library reader rankings.' : 'Manage student borrowing profiles and permissions.'}
+          </p>
         </div>
-        <Link to="/students/add" className="btn btn-gold d-flex align-items-center gap-2">
-          <FaPlus /> Add New Student
-        </Link>
+        {!isStudent && (
+          <Link to="/students/add" className="btn btn-gold d-flex align-items-center gap-2">
+            <FaPlus /> Add New Student
+          </Link>
+        )}
       </div>
 
       <div className="glass-card p-3">
@@ -81,7 +95,7 @@ const Students = () => {
                   <th>Year</th>
                   <th>Email</th>
                   <th>Status</th>
-                  <th className="text-end">Actions</th>
+                  {!isStudent && <th className="text-end">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -105,21 +119,23 @@ const Students = () => {
                           {student.is_active ? 'Active' : 'Suspended'}
                         </span>
                       </td>
-                      <td className="text-end">
-                        <div className="d-inline-flex gap-2">
-                          <Link to={`/students/edit/${student.id}`} className="btn btn-outline-gold btn-sm p-1.5 rounded-3" title="Edit Profile">
-                            <FaEdit size={14} />
-                          </Link>
-                          <button className="btn btn-outline-danger btn-sm p-1.5 rounded-3" title="Delete Profile" onClick={() => openDeleteModal(student)}>
-                            <FaTrash size={14} />
-                          </button>
-                        </div>
-                      </td>
+                      {!isStudent && (
+                        <td className="text-end">
+                          <div className="d-inline-flex gap-2">
+                            <Link to={`/students/edit/${student.id}`} className="btn btn-outline-gold btn-sm p-1.5 rounded-3" title="Edit Profile">
+                              <FaEdit size={14} />
+                            </Link>
+                            <button className="btn btn-outline-danger btn-sm p-1.5 rounded-3" title="Delete Profile" onClick={() => openDeleteModal(student)}>
+                              <FaTrash size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="text-center text-secondary py-5">No student records registered.</td>
+                    <td colSpan={isStudent ? "6" : "7"} className="text-center text-secondary py-5">No student records registered.</td>
                   </tr>
                 )}
               </tbody>
@@ -128,20 +144,22 @@ const Students = () => {
         </div>
       )}
 
-      {/* Delete Confirmation */}
-      <Modal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        title="Remove Student Record"
-        footerActions={
-          <>
-            <button className="btn btn-outline-secondary btn-sm" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-            <button className="btn btn-danger btn-sm" onClick={handleDeleteConfirm}>Remove Student</button>
-          </>
-        }
-      >
-        <p className="fs-7 mb-0">Are you sure you want to remove student <strong>{studentToDelete?.name} ({studentToDelete?.student_id})</strong>? This deletion is permanent.</p>
-      </Modal>
+      {/* Delete Confirmation for Staff */}
+      {!isStudent && (
+        <Modal
+          show={showDeleteModal}
+          onHide={() => setShowDeleteModal(false)}
+          title="Remove Student Record"
+          footerActions={
+            <>
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn btn-danger btn-sm" onClick={handleDeleteConfirm}>Remove Student</button>
+            </>
+          }
+        >
+          <p className="fs-7 mb-0">Are you sure you want to remove student <strong>{studentToDelete?.name} ({studentToDelete?.student_id})</strong>? This deletion is permanent.</p>
+        </Modal>
+      )}
     </div>
   );
 };

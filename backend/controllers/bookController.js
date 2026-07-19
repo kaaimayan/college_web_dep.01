@@ -30,7 +30,7 @@ const bookController = {
     try {
       const {
         title, isbn, author_name, category_name, publisher_name,
-        total_copies, description, edition, year, language, shelf_location
+        total_copies, download_url, description, edition, year, language, shelf_location
       } = req.body;
 
       if (!title || !isbn || !total_copies) {
@@ -54,7 +54,7 @@ const bookController = {
         title, isbn, author_id, category_id, publisher_id,
         total_copies: parseInt(total_copies),
         available_copies: parseInt(total_copies),
-        cover_image, description, edition, year: year ? parseInt(year) : null,
+        cover_image, download_url, description, edition, year: year ? parseInt(year) : null,
         language, shelf_location
       });
 
@@ -76,7 +76,7 @@ const bookController = {
     try {
       const {
         title, isbn, author_name, category_name, publisher_name,
-        total_copies, available_copies, description, edition, year, language, shelf_location
+        total_copies, available_copies, download_url, description, edition, year, language, shelf_location
       } = req.body;
       const bookId = req.params.id;
 
@@ -112,7 +112,7 @@ const bookController = {
         title, isbn, author_id, category_id, publisher_id,
         total_copies: total_copies !== undefined ? parseInt(total_copies) : book.total_copies,
         available_copies: finalAvailable,
-        cover_image, description, edition, year: year ? parseInt(year) : book.year,
+        cover_image, download_url, description, edition, year: year ? parseInt(year) : book.year,
         language, shelf_location
       });
 

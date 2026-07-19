@@ -27,7 +27,6 @@ const seed = async () => {
     }
     
     const sqlSchema = fs.readFileSync(schemaPath, 'utf8');
-    // Simple command separator split (ignoring comments/strings properly)
     const sqlStatements = sqlSchema
       .split(';')
       .map(s => s.trim())
@@ -37,6 +36,9 @@ const seed = async () => {
       await connection.query(statement);
     }
     console.log('Schema tables created successfully.');
+
+    // Ensure users table role column supports student
+    await connection.query("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'librarian', 'student') DEFAULT 'student'");
 
     // 3. Clear existing seeds to prevent key conflicts
     console.log('Clearing old database seeds...');
@@ -60,7 +62,8 @@ const seed = async () => {
       ['Science', 'Physics, Chemistry, Mathematics'],
       ['Business & Management', 'Marketing, Management, MBA coursework'],
       ['Literature & Fiction', 'English Novels, Poetry, Tamil Classics'],
-      ['Social Sciences & History', 'History, Sociology, Humanities']
+      ['Social Sciences & History', 'History, Sociology, Humanities'],
+      ['Online Books', 'Digital textbooks, PDFs, and downloadable learning materials']
     ];
     for (let cat of categories) {
       await connection.query('INSERT INTO categories (name, description) VALUES (?, ?)', cat);
@@ -95,6 +98,7 @@ const seed = async () => {
     console.log('Seeding library administrators...');
     const adminPass = await hashPassword('admin123');
     const librarianPass = await hashPassword('librarian123');
+    const studentPass = await hashPassword('student123');
     
     await connection.query(
       'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
@@ -108,6 +112,7 @@ const seed = async () => {
     // Get database IDs for references
     const [[{ id: catCS }]] = await connection.query('SELECT id FROM categories WHERE name = ?', ['Computer Science']);
     const [[{ id: catSci }]] = await connection.query('SELECT id FROM categories WHERE name = ?', ['Science']);
+    const [[{ id: catOnline }]] = await connection.query('SELECT id FROM categories WHERE name = ?', ['Online Books']);
     
     const [[{ id: authKnuth }]] = await connection.query('SELECT id FROM authors WHERE name = ?', ['Donald Knuth']);
     const [[{ id: authMartin }]] = await connection.query('SELECT id FROM authors WHERE name = ?', ['Robert C. Martin']);
@@ -122,19 +127,27 @@ const seed = async () => {
     const books = [
       [
         'The Art of Computer Programming', '9780201896831', authKnuth, catCS, pubPearson,
-        5, 5, 'Vol 1-4 fundamental algorithms text', '3rd Edition', 2011, 'English', 'CS-SHELF-01'
+        15, 10, 'Vol 1-4 fundamental algorithms text', '3rd Edition', 2011, 'English', 'CS-SHELF-01', null
       ],
       [
         'Clean Code', '9780132350884', authMartin, catCS, pubPearson,
-        8, 8, 'A handbook of agile software craftsmanship', '1st Edition', 2008, 'English', 'CS-SHELF-02'
+        18, 12, 'A handbook of agile software craftsmanship', '1st Edition', 2008, 'English', 'CS-SHELF-02', null
       ],
       [
         'A Brief History of Time', '9780553380163', authHawking, catSci, pubOxford,
-        4, 4, 'Cosmology and theoretical astrophysics guide', 'Updated Edition', 1998, 'English', 'SCI-SHELF-A4'
+        10, 7, 'Cosmology and theoretical astrophysics guide', 'Updated Edition', 1998, 'English', 'SCI-SHELF-A4', null
       ],
       [
         'Designing Data-Intensive Applications', '9781449373320', authMartin, catCS, pubOReilly,
-        6, 6, 'Reliable, scalable, and maintainable systems', '1st Edition', 2017, 'English', 'CS-SHELF-04'
+        12, 8, 'Reliable, scalable, and maintainable systems', '1st Edition', 2017, 'English', 'CS-SHELF-04', null
+      ],
+      [
+        'Introduction to Algorithms (PDF)', '9780262033848', authKnuth, catOnline, pubOxford,
+        100, 100, 'Comprehensive guide to algorithms and data structures.', '3rd Edition', 2009, 'English', 'DIGITAL', 'https://vru.vnu.edu.vn/wp-content/uploads/2020/07/Introduction-to-Algorithms-3rd-Edition.pdf'
+      ],
+      [
+        'Clean Architecture (PDF)', '9780134494166', authMartin, catOnline, pubPearson,
+        100, 100, 'A craftsman\'s guide to software structure and design.', '1st Edition', 2017, 'English', 'DIGITAL', 'https://www.cleancoder.com'
       ]
     ];
 
@@ -142,14 +155,14 @@ const seed = async () => {
       await connection.query(
         `INSERT INTO books (
           title, isbn, author_id, category_id, publisher_id,
-          total_copies, available_copies, description, edition, year, language, shelf_location
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          total_copies, available_copies, description, edition, year, language, shelf_location, download_url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         book
       );
     }
 
-    // 9. Seed Students
-    console.log('Seeding students...');
+    // 9. Seed Students and Student User accounts
+    console.log('Seeding students and user accounts...');
     const students = [
       ['KR24CS001', 'Arun Kumar', 'arunkumar@krartsscience.edu', '9876543210', 'Computer Science', 3, '12 Main Rd, Kovilpatti', 1],
       ['KR24CS002', 'Deepika R', 'deepika@krartsscience.edu', '9876543211', 'Computer Science', 3, '45 West Car St, Kovilpatti', 1],
@@ -164,28 +177,71 @@ const seed = async () => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         stud
       );
+      // Create student user login
+      await connection.query(
+        'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+        [stud[1], stud[2], studentPass, 'student']
+      );
     }
 
-    // 10. Seed some transaction logs for dashboard mockup
-    console.log('Seeding transaction logs...');
-    const [[{ id: studId }]] = await connection.query('SELECT id FROM students WHERE student_id = ?', ['KR24CS001']);
-    const [[{ id: bookId }]] = await connection.query('SELECT id FROM books WHERE isbn = ?', ['9780132350884']);
-    const [[{ id: userId }]] = await connection.query('SELECT id FROM users WHERE role = ?', ['admin']);
+    // 10. Seed transaction logs to rank Top Students (Arun = 5, Deepika = 3, Manoj = 2)
+    console.log('Seeding student borrowing records for ranking...');
+    const [allStuds] = await connection.query('SELECT id, student_id FROM students');
+    const [allBooks] = await connection.query('SELECT id FROM books');
+    const [[{ id: adminUserId }]] = await connection.query('SELECT id FROM users WHERE role = ?', ['admin']);
 
-    // Issued book yesterday
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 13); // 14 day limit
+    const arun = allStuds.find(s => s.student_id === 'KR24CS001');
+    const deepika = allStuds.find(s => s.student_id === 'KR24CS002');
+    const manoj = allStuds.find(s => s.student_id === 'KR24IT005');
 
-    await connection.query(
-      `INSERT INTO issued_books (book_id, student_id, issued_by, issued_date, due_date, status) 
-       VALUES (?, ?, ?, ?, ?, 'issued')`,
-      [bookId, studId, userId, yesterday, dueDate]
-    );
-    await connection.query('UPDATE books SET available_copies = available_copies - 1 WHERE id = ?', [bookId]);
+    const issueDates = [
+      new Date(Date.now() - 20 * 86400000),
+      new Date(Date.now() - 15 * 86400000),
+      new Date(Date.now() - 10 * 86400000),
+      new Date(Date.now() - 5 * 86400000),
+      new Date(Date.now() - 1 * 86400000)
+    ];
 
-    console.log('Database successfully seeded. Setup complete!');
+    // Seed 5 books for Arun Kumar (Top Student Rank #1)
+    if (arun) {
+      for (let i = 0; i < 5; i++) {
+        const bId = allBooks[i % allBooks.length].id;
+        const due = new Date(issueDates[i].getTime() + 14 * 86400000);
+        await connection.query(
+          `INSERT INTO issued_books (book_id, student_id, issued_by, issued_date, due_date, status) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [bId, arun.id, adminUserId, issueDates[i], due, i < 2 ? 'returned' : 'issued']
+        );
+      }
+    }
+
+    // Seed 3 books for Deepika R (Rank #2)
+    if (deepika) {
+      for (let i = 0; i < 3; i++) {
+        const bId = allBooks[(i + 1) % allBooks.length].id;
+        const due = new Date(issueDates[i].getTime() + 14 * 86400000);
+        await connection.query(
+          `INSERT INTO issued_books (book_id, student_id, issued_by, issued_date, due_date, status) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [bId, deepika.id, adminUserId, issueDates[i], due, 'issued']
+        );
+      }
+    }
+
+    // Seed 2 books for Manoj S (Rank #3)
+    if (manoj) {
+      for (let i = 0; i < 2; i++) {
+        const bId = allBooks[(i + 2) % allBooks.length].id;
+        const due = new Date(issueDates[i].getTime() + 14 * 86400000);
+        await connection.query(
+          `INSERT INTO issued_books (book_id, student_id, issued_by, issued_date, due_date, status) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [bId, manoj.id, adminUserId, issueDates[i], due, 'issued']
+        );
+      }
+    }
+
+    console.log('Database successfully seeded with student credentials & ranking data complete!');
 
   } catch (err) {
     console.error('Seeding process failed:', err);

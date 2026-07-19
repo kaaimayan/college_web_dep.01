@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getDashboardStats } from '../services/transactions';
 import DashboardCard from '../components/DashboardCard';
+import TopStudentCard from '../components/TopStudentCard';
 import Loader from '../components/Loader';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { FaBook, FaUserGraduate, FaHandHolding, FaUndo, FaMoneyBill, FaClock } from 'react-icons/fa';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { FaBook, FaUserGraduate, FaHandHolding, FaUndo, FaMoneyBill, FaClock, FaBookReader, FaTrophy } from 'react-icons/fa';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -31,9 +33,12 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const isStudent = user?.role === 'student';
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -89,7 +94,6 @@ const Dashboard = () => {
     }]
   };
 
-  // Setup options for dark theme charts
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -132,13 +136,24 @@ const Dashboard = () => {
       {/* Welcome Message */}
       <div className="d-flex justify-content-between align-items-center mb-1">
         <div>
-          <h4 className="fw-bold text-blue mb-1">KR Arts & Science College - Library Console</h4>
-          <p className="text-secondary mb-0 fs-7">Real-time status monitor and transaction management platform.</p>
+          <h4 className="fw-bold text-blue mb-1">
+            {isStudent ? `Welcome back, ${user?.name || 'Student'}!` : 'KR Arts & Science College - Library Console'}
+          </h4>
+          <p className="text-secondary mb-0 fs-7">
+            {isStudent ? 'Explore books, read digital e-books, and check student borrowing rankings.' : 'Real-time status monitor and transaction management platform.'}
+          </p>
         </div>
         <div className="text-end">
           <span className="badge bg-dark bg-opacity-50 text-warning px-3 py-2 fs-7 border border-secondary rounded-3">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
+        </div>
+      </div>
+
+      {/* Top Student Ranking Leaderboard Card */}
+      <div className="row">
+        <div className="col-12">
+          <TopStudentCard />
         </div>
       </div>
 
@@ -148,19 +163,19 @@ const Dashboard = () => {
           <DashboardCard title="Total Books" value={stats.totalBooks} icon={<FaBook />} color="var(--accent-gold)" />
         </div>
         <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
-          <DashboardCard title="Available" value={stats.availableBooks} icon={<FaBook />} color="#10b981" />
+          <DashboardCard title="Available Copies" value={stats.availableBooks} icon={<FaBook />} color="#10b981" />
         </div>
         <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Issued Books" value={stats.issuedBooks} icon={<FaHandHolding />} color="#6366f1" />
         </div>
         <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
-          <DashboardCard title="Students" value={stats.totalStudents} icon={<FaUserGraduate />} color="#0ea5e9" />
+          <DashboardCard title="Total Students" value={stats.totalStudents} icon={<FaUserGraduate />} color="#0ea5e9" />
         </div>
         <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Overdue Books" value={stats.overdueBooks} icon={<FaClock />} color="#ef4444" />
         </div>
         <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
-          <DashboardCard title="Fines Paid" value={`₹${stats.fineCollected}`} icon={<FaMoneyBill />} color="#ec4899" />
+          <DashboardCard title="Fines Registry" value={`₹${stats.fineCollected}`} icon={<FaMoneyBill />} color="#ec4899" />
         </div>
       </div>
 
@@ -205,42 +220,73 @@ const Dashboard = () => {
           {/* Quick Actions Grid */}
           <div className="glass-card">
             <h6 className="text-warning fw-semibold text-uppercase fs-8 mb-3" style={{ letterSpacing: '1px' }}>
-              Quick Workflows
+              Quick Shortcuts & Navigation
             </h6>
             <div className="row g-3">
-              <div className="col-6 col-md-3">
-                <Link to="/issue" className="quick-action-btn">
-                  <FaHandHolding className="text-warning" />
-                  <span className="fs-7">Issue Book</span>
-                </Link>
-              </div>
-              <div className="col-6 col-md-3">
-                <Link to="/return" className="quick-action-btn">
-                  <FaUndo className="text-success" />
-                  <span className="fs-7">Return Book</span>
-                </Link>
-              </div>
-              <div className="col-6 col-md-3">
-                <Link to="/books/add" className="quick-action-btn">
-                  <FaBook className="text-info" />
-                  <span className="fs-7">Add Book</span>
-                </Link>
-              </div>
-              <div className="col-6 col-md-3">
-                <Link to="/students/add" className="quick-action-btn">
-                  <FaUserGraduate className="text-pink" style={{ color: '#ec4899' }} />
-                  <span className="fs-7">Add Student</span>
-                </Link>
-              </div>
+              {!isStudent ? (
+                <>
+                  <div className="col-6 col-md-3">
+                    <Link to="/issue" className="quick-action-btn">
+                      <FaHandHolding className="text-warning" />
+                      <span className="fs-7">Issue Book</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/return" className="quick-action-btn">
+                      <FaUndo className="text-success" />
+                      <span className="fs-7">Return Book</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/books/add" className="quick-action-btn">
+                      <FaBook className="text-info" />
+                      <span className="fs-7">Add Book</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/students/add" className="quick-action-btn">
+                      <FaUserGraduate style={{ color: '#ec4899' }} />
+                      <span className="fs-7">Add Student</span>
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-6 col-md-3">
+                    <Link to="/books" className="quick-action-btn">
+                      <FaBook className="text-warning" />
+                      <span className="fs-7">Browse Books</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/books" className="quick-action-btn">
+                      <FaBookReader className="text-success" />
+                      <span className="fs-7">Read E-Books</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/reservations" className="quick-action-btn">
+                      <FaHandHolding className="text-info" />
+                      <span className="fs-7">My Borrowings</span>
+                    </Link>
+                  </div>
+                  <div className="col-6 col-md-3">
+                    <Link to="/students" className="quick-action-btn">
+                      <FaTrophy style={{ color: '#ec4899' }} />
+                      <span className="fs-7">Top Student Ranks</span>
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Side Logs */}
+        {/* Right Side Activity Logs */}
         <div className="col-12 col-lg-4">
           <div className="glass-card h-100 d-flex flex-column" style={{ maxHeight: '550px', overflow: 'hidden' }}>
             <h6 className="text-warning fw-semibold text-uppercase fs-8 mb-3" style={{ letterSpacing: '1px' }}>
-              System Logs & Activity
+              System Activity & Events
             </h6>
             <div className="flex-grow-1 overflow-y-auto pe-1 d-flex flex-column gap-2" style={{ maxHeight: '450px' }}>
               {stats.recentActivities && stats.recentActivities.length > 0 ? (

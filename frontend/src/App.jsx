@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './routes/PrivateRoute';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -23,6 +23,15 @@ import Fine from './pages/Fine';
 import Reports from './pages/Reports';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+
+// Helper component for Staff/Librarian-only routes
+const StaffOnly = ({ children }) => {
+  const { user } = useAuth();
+  if (user?.role === 'student') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
 
 const Layout = () => {
   const [sidebarShow, setSidebarShow] = useState(false);
@@ -47,19 +56,19 @@ const Layout = () => {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="books" element={<Books />} />
-            <Route path="books/add" element={<AddBook />} />
-            <Route path="books/edit/:id" element={<EditBook />} />
+            <Route path="books/add" element={<StaffOnly><AddBook /></StaffOnly>} />
+            <Route path="books/edit/:id" element={<StaffOnly><EditBook /></StaffOnly>} />
             <Route path="students" element={<Students />} />
-            <Route path="students/add" element={<AddStudent />} />
-            <Route path="students/edit/:id" element={<EditStudent />} />
-            <Route path="issue" element={<IssueBook />} />
-            <Route path="return" element={<ReturnBook />} />
+            <Route path="students/add" element={<StaffOnly><AddStudent /></StaffOnly>} />
+            <Route path="students/edit/:id" element={<StaffOnly><EditStudent /></StaffOnly>} />
+            <Route path="issue" element={<StaffOnly><IssueBook /></StaffOnly>} />
+            <Route path="return" element={<StaffOnly><ReturnBook /></StaffOnly>} />
             <Route path="reservations" element={<Reservations />} />
-            <Route path="fines" element={<Fine />} />
-            <Route path="reports" element={<Reports />} />
+            <Route path="fines" element={<StaffOnly><Fine /></StaffOnly>} />
+            <Route path="reports" element={<StaffOnly><Reports /></StaffOnly>} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="register" element={<Register />} />
+            <Route path="register" element={<StaffOnly><Register /></StaffOnly>} />
           </Routes>
           <Footer />
         </main>

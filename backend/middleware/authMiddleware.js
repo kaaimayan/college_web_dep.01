@@ -26,6 +26,16 @@ const authMiddleware = async (req, res, next) => {
       return res.status(403).json({ message: 'Your account has been deactivated.' });
     }
 
+    if (user.role === 'student') {
+      const [studs] = await pool.query('SELECT id as db_student_id, student_id, department, year FROM students WHERE email = ?', [user.email]);
+      if (studs.length > 0) {
+        user.student_id = studs[0].student_id;
+        user.db_student_id = studs[0].db_student_id;
+        user.department = studs[0].department;
+        user.year = studs[0].year;
+      }
+    }
+
     req.user = user;
     next();
   } catch (err) {

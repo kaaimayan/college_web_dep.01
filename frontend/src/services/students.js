@@ -5,6 +5,11 @@ export const getStudents = async () => {
   return response.data;
 };
 
+export const getTopBorrowers = async (limit = 5) => {
+  const response = await api.get(`/students/top-borrowers?limit=${limit}`);
+  return response.data;
+};
+
 export const getStudent = async (id) => {
   const response = await api.get(`/students/${id}`);
   return response.data;
