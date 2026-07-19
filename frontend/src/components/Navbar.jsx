@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserCircle, FaSignOutAlt, FaBell } from 'react-icons/fa';
-import krLogo from '../assets/kr logo.png';
+import krLogo from '../assets/Krlogo.png';
 
 export const LogoSVG = () => (
   <img

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import krLogo from '../assets/kr logo.png'; 
+import krLogo from '../assets/Krlogo.png'; 
 import { FaUserGraduate, FaUserShield } from 'react-icons/fa';
 
 const Login = () => {
