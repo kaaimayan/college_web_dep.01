@@ -5,20 +5,44 @@ const { hashPassword } = require('./utils/hashPassword');
 require('dotenv').config();
 
 const seed = async () => {
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : ''
-  });
+  const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
+  const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306, 10);
+  const user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
+  const password = process.env.DB_PASSWORD !== undefined 
+    ? process.env.DB_PASSWORD 
+    : (process.env.MYSQLPASSWORD !== undefined ? process.env.MYSQLPASSWORD : '');
+  const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'library_for_college';
 
-  console.log('Connected to MySQL host. Initializing database schema...');
+  const connConfig = {
+    host,
+    port,
+    user,
+    password,
+    multipleStatements: true
+  };
+
+  if (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') {
+    connConfig.ssl = { rejectUnauthorized: false };
+  }
+
+  let connection;
+  try {
+    connection = await mysql.createConnection(connConfig);
+    console.log(`Connected to MySQL host ${host}:${port}. Initializing database...`);
+  } catch (err) {
+    // If connecting without database name fails (e.g. cloud restriction), connect with database name directly
+    connConfig.database = dbName;
+    connection = await mysql.createConnection(connConfig);
+    console.log(`Connected directly to database ${dbName} on ${host}:${port}.`);
+  }
 
   try {
-    // 1. Create database
-    await connection.query('DROP DATABASE IF EXISTS library_for_college');
-    await connection.query('CREATE DATABASE library_for_college');
-    await connection.query('USE library_for_college');
-    console.log('Database library_for_college selected.');
+    // 1. Create database if connecting to server root
+    if (!connConfig.database) {
+      await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+      await connection.query(`USE \`${dbName}\``);
+      console.log(`Database ${dbName} selected.`);
+    }
 
     // 2. Read and run schema.sql
     const schemaPath = path.join(__dirname, 'schema.sql');
@@ -184,7 +208,7 @@ const seed = async () => {
       );
     }
 
-    // 10. Seed transaction logs to rank Top Students (Arun = 5, Deepika = 3, Manoj = 2)
+    // 10. Seed transaction logs to rank Top Students
     console.log('Seeding student borrowing records for ranking...');
     const [allStuds] = await connection.query('SELECT id, student_id FROM students');
     const [allBooks] = await connection.query('SELECT id FROM books');
@@ -202,7 +226,6 @@ const seed = async () => {
       new Date(Date.now() - 1 * 86400000)
     ];
 
-    // Seed 5 books for Arun Kumar (Top Student Rank #1)
     if (arun) {
       for (let i = 0; i < 5; i++) {
         const bId = allBooks[i % allBooks.length].id;
@@ -215,7 +238,6 @@ const seed = async () => {
       }
     }
 
-    // Seed 3 books for Deepika R (Rank #2)
     if (deepika) {
       for (let i = 0; i < 3; i++) {
         const bId = allBooks[(i + 1) % allBooks.length].id;
@@ -228,7 +250,6 @@ const seed = async () => {
       }
     }
 
-    // Seed 2 books for Manoj S (Rank #3)
     if (manoj) {
       for (let i = 0; i < 2; i++) {
         const bId = allBooks[(i + 2) % allBooks.length].id;
