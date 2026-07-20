@@ -32,8 +32,8 @@ const Navbar = ({ onToggleSidebar }) => {
       <div className="container-fluid p-0 d-flex justify-content-between align-items-center">
         {/* Left branding */}
         <div className="d-flex align-items-center gap-3">
-          <button 
-            className="btn btn-link text-white d-lg-none p-0 me-2" 
+          <button
+            className="btn btn-link text-white d-lg-none p-0 me-2"
             onClick={onToggleSidebar}
             aria-label="Toggle Navigation"
           >
@@ -43,9 +43,9 @@ const Navbar = ({ onToggleSidebar }) => {
               <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
-          
+
           <LogoSVG />
-          
+
           <div className="d-flex flex-column">
             <span className="fs-5 fw-bold text-blue mb-0" style={{ letterSpacing: '0.5px' }}>
               KR Arts And Science College
@@ -66,21 +66,21 @@ const Navbar = ({ onToggleSidebar }) => {
           </button>
 
           <div className="dropdown">
-            <button 
-              className="btn btn-link text-white d-flex align-items-center gap-2 p-0 decoration-none dropdown-toggle border-0" 
-              type="button" 
-              data-bs-toggle="dropdown" 
+            <button
+              className="btn btn-link text-white d-flex align-items-center gap-2 p-0 decoration-none dropdown-toggle border-0"
+              type="button"
+              data-bs-toggle="dropdown"
               aria-expanded="false"
               style={{ textDecoration: 'none' }}
             >
               {user?.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt="avatar" 
-                  className="rounded-circle border border-warning" 
-                  width="36" 
-                  height="36" 
-                  style={{ objectFit: 'cover' }} 
+                <img
+                  src={user.avatar}
+                  alt="avatar"
+                  className="rounded-circle border border-warning"
+                  width="36"
+                  height="36"
+                  style={{ objectFit: 'cover' }}
                 />
               ) : (
                 <FaUserCircle size={32} className="text-warning" />
@@ -89,7 +89,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 {user?.name || 'Administrator'}
               </span>
             </button>
-            
+
             <ul className="dropdown-menu dropdown-menu-end dropdown-menu-dark glass-card p-2 border-0 mt-2" style={{ width: '200px' }}>
               <li>
                 <Link className="dropdown-item rounded-3 py-2" to="/profile">
