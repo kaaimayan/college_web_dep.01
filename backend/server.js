@@ -23,9 +23,27 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.indexOf('localhost') !== -1 || origin.startsWith('http://127.0.0.1')) {
+    // Allow requests with no origin (e.g. server-to-server, Postman, mobile apps)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5000'
+    ];
+
+    // Add the deployed frontend URL from environment variable
+    if (process.env.FRONTEND_URL) {
+      // Strip trailing slashes and /login path for clean origin matching
+      const frontendOrigin = process.env.FRONTEND_URL.replace(/\/+$/, '').replace(/\/login$/, '');
+      allowedOrigins.push(frontendOrigin);
+    }
+
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+
     return callback(new Error('CORS Policy Blocked'), false);
   },
   credentials: true

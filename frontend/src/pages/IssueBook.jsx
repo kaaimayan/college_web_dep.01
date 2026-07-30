@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getStudents } from '../services/students';
 import { getBooks } from '../services/books';
 import { issueBook } from '../services/transactions';
+import { resolveAssetURL } from '../services/api';
 import { useLibrary } from '../context/LibraryContext';
 import Loader from '../components/Loader';
 import { FaBook, FaUserGraduate, FaCalendarCheck } from 'react-icons/fa';
@@ -210,7 +211,7 @@ const IssueBook = () => {
             {currentBook ? (
               <div className="d-flex gap-3">
                 {currentBook.cover_image ? (
-                  <img src={currentBook.cover_image} alt={currentBook.title} className="rounded-2 border border-secondary" style={{ width: '60px', height: '80px', objectFit: 'cover' }} />
+                  <img src={resolveAssetURL(currentBook.cover_image)} alt={currentBook.title} className="rounded-2 border border-secondary" style={{ width: '60px', height: '80px', objectFit: 'cover' }} />
                 ) : (
                   <div className="rounded-2 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-muted" style={{ width: '60px', height: '80px', border: '1px dashed var(--accent-gold)' }}>
                     <FaBook />

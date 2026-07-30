@@ -3,6 +3,7 @@ import { getBooks, deleteBook, getCategories } from '../services/books';
 import { createReservation } from '../services/transactions';
 import { useAuth } from '../context/AuthContext';
 import { useLibrary } from '../context/LibraryContext';
+import { resolveAssetURL } from '../services/api';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import Loader from '../components/Loader';
@@ -200,7 +201,7 @@ const Books = () => {
           <div className="row g-3">
             <div className="col-12 col-md-4 text-center">
               {selectedBook.cover_image ? (
-                <img src={selectedBook.cover_image} alt={selectedBook.title} className="rounded-3 img-fluid border border-secondary" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+                <img src={resolveAssetURL(selectedBook.cover_image)} alt={selectedBook.title} className="rounded-3 img-fluid border border-secondary" style={{ maxHeight: '200px', objectFit: 'cover' }} />
               ) : (
                 <div className="rounded-3 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 mx-auto" style={{ width: '130px', height: '180px', border: '1px dashed var(--accent-gold)' }}>
                   No Cover

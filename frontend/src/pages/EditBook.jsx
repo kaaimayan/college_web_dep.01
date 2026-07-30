@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getBook, updateBook } from '../services/books';
 import { FaUpload, FaArrowLeft } from 'react-icons/fa';
+import { resolveAssetURL } from '../services/api';
 import Loader from '../components/Loader';
 
 const EditBook = () => {
@@ -48,7 +49,7 @@ const EditBook = () => {
           description: book.description || ''
         });
         if (book.cover_image) {
-          setCoverPreview(book.cover_image);
+          setCoverPreview(resolveAssetURL(book.cover_image));
         }
       } catch (err) {
         console.error(err);

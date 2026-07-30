@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getTopBorrowers } from '../services/students';
 import { useLibrary } from '../context/LibraryContext';
 import { FaTrophy, FaMedal, FaCrown, FaUserGraduate, FaBookReader, FaStar } from 'react-icons/fa';
+import { resolveAssetURL } from '../services/api';
 
 const TopStudentCard = () => {
   const [topStudents, setTopStudents] = useState([]);
@@ -89,7 +90,7 @@ const TopStudentCard = () => {
                   style={{ width: '64px', height: '64px', background: 'rgba(255, 255, 255, 0.9)', overflow: 'hidden' }}
                 >
                   {topStudent.photo ? (
-                    <img src={topStudent.photo} alt={topStudent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={resolveAssetURL(topStudent.photo)} alt={topStudent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <FaUserGraduate size={30} className="text-warning" />
                   )}

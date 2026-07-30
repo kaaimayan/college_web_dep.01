@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaBook, FaBookReader, FaHandHolding } from 'react-icons/fa';
+import { resolveAssetURL } from '../services/api';
 
 const BookCard = ({ book, onSelect, isStudent, onBorrow }) => {
   return (
@@ -9,7 +10,7 @@ const BookCard = ({ book, onSelect, isStudent, onBorrow }) => {
           <div className="book-cover-front">
             {book.cover_image ? (
               <img
-                src={book.cover_image}
+                src={resolveAssetURL(book.cover_image)}
                 alt={book.title}
                 className="book-cover-img"
               />
