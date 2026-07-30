@@ -92,7 +92,16 @@ const transactionController = {
 
   getReservations: async (req, res) => {
     try {
-      const reservations = await Transaction.getReservations();
+      const filters = {};
+      if (req.user && req.user.role === 'student') {
+        const [studentRows] = await pool.query('SELECT id FROM students WHERE email = ?', [req.user.email]);
+        if (studentRows.length > 0) {
+          filters.student_id = studentRows[0].id;
+        } else {
+          return res.status(200).json([]);
+        }
+      }
+      const reservations = await Transaction.getReservations(filters);
       res.status(200).json(reservations);
     } catch (err) {
       console.error('Get reservations error:', err);
@@ -117,17 +126,26 @@ const transactionController = {
 
   updateReservationStatus: async (req, res) => {
     try {
+      if (req.user && req.user.role === 'student') {
+        return res.status(403).json({ message: 'Access denied. Only staff and administrators can update reservation status.' });
+      }
+
       const { id } = req.params;
       const { status } = req.body;
       if (!status) {
         return res.status(400).json({ message: 'Status is required.' });
       }
 
-      await Transaction.updateReservationStatus(id, status);
-      res.status(200).json({ message: 'Reservation status updated.' });
+      await Transaction.updateReservationStatus(id, status, req.user.id);
+      
+      // Log activity
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      await User.logActivity(req.user.id, 'RESERVATION_UPDATE', `Updated reservation #${id} status to ${status}`, ip);
+
+      res.status(200).json({ message: `Reservation status updated to ${status}.` });
     } catch (err) {
       console.error('Update reservation error:', err);
-      res.status(500).json({ message: 'Server error updating reservation.' });
+      res.status(400).json({ message: err.message || 'Server error updating reservation.' });
     }
   },
 
@@ -164,7 +182,7 @@ const transactionController = {
   getDashboardStats: async (req, res) => {
     try {
       // 1. Core counters
-      const [[booksCount]] = await pool.query('SELECT SUM(total_copies) as total, SUM(available_copies) as available FROM books');
+      const [[booksCount]] = await pool.query('SELECT COUNT(*) as total_books, SUM(total_copies) as total_copies, SUM(available_copies) as available FROM books');
       const [[issuedCount]] = await pool.query('SELECT COUNT(*) as count FROM issued_books WHERE status = \'issued\'');
       const [[studentsCount]] = await pool.query('SELECT COUNT(*) as count FROM students');
       const [[overdueCount]] = await pool.query('SELECT COUNT(*) as count FROM issued_books WHERE status = \'issued\' AND due_date < CURRENT_DATE()');
@@ -193,7 +211,8 @@ const transactionController = {
       const recentActivities = await User.getActivityLogs(8);
 
       res.status(200).json({
-        totalBooks: booksCount.total || 0,
+        totalBooks: booksCount.total_books || 0,
+        totalCopies: booksCount.total_copies || 0,
         availableBooks: booksCount.available || 0,
         issuedBooks: issuedCount.count || 0,
         totalStudents: studentsCount.count || 0,

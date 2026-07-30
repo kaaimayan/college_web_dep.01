@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LibraryProvider } from './context/LibraryContext';
 import PrivateRoute from './routes/PrivateRoute';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -80,13 +81,15 @@ const Layout = () => {
 const App = () => {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* Authenticated Layout */}
-        <Route path="/*" element={<PrivateRoute />}>
-          <Route path="*" element={<Layout />} />
-        </Route>
-      </Routes>
+      <LibraryProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          {/* Authenticated Layout */}
+          <Route path="/*" element={<PrivateRoute />}>
+            <Route path="*" element={<Layout />} />
+          </Route>
+        </Routes>
+      </LibraryProvider>
     </AuthProvider>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getStudents } from '../services/students';
 import { getBooks } from '../services/books';
 import { issueBook } from '../services/transactions';
+import { useLibrary } from '../context/LibraryContext';
 import Loader from '../components/Loader';
 import { FaBook, FaUserGraduate, FaCalendarCheck } from 'react-icons/fa';
 
@@ -17,6 +18,7 @@ const IssueBook = () => {
   const [selectedBook, setSelectedBook] = useState('');
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState('');
+  const { triggerRefresh } = useLibrary();
 
   useEffect(() => {
     const loadResources = async () => {
@@ -65,9 +67,26 @@ const IssueBook = () => {
         due_date: dueDate
       });
       setSuccess('Book successfully issued to student!');
+      triggerRefresh(); // Re-sync Dashboard stats & Top Borrower leaderboard
       
-      // Update local available books copy count
-      setBooks(books.map(b => b.id === parseInt(selectedBook) ? { ...b, available_copies: b.available_copies - 1 } : b).filter(b => b.available_copies > 0));
+      // Re-fetch books from server to get accurate available copies
+      try {
+        const freshBookList = await getBooks();
+        const freshAvailable = freshBookList.filter(b => b.available_copies > 0);
+        setBooks(freshAvailable);
+      } catch (refreshErr) {
+        console.error('Failed to refresh book list:', refreshErr);
+      }
+      
+      // Re-fetch students to update borrow counts
+      try {
+        const freshStudentList = await getStudents();
+        const freshActive = freshStudentList.filter(s => s.is_active === 1);
+        setStudents(freshActive);
+      } catch (refreshErr) {
+        console.error('Failed to refresh student list:', refreshErr);
+      }
+      
       setSelectedBook('');
     } catch (err) {
       console.error(err);

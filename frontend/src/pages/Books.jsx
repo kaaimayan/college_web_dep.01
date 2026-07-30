@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBooks, deleteBook, getCategories } from '../services/books';
 import { createReservation } from '../services/transactions';
 import { useAuth } from '../context/AuthContext';
+import { useLibrary } from '../context/LibraryContext';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import Loader from '../components/Loader';
@@ -26,6 +27,7 @@ const Books = () => {
   const [borrowLoading, setBorrowLoading] = useState(false);
 
   const isStudent = user?.role === 'student';
+  const { refreshKey } = useLibrary();
 
   const fetchBooks = async () => {
     try {
@@ -44,7 +46,7 @@ const Books = () => {
 
   useEffect(() => {
     fetchBooks();
-  }, [search, selectedCategory]);
+  }, [search, selectedCategory, refreshKey]);
 
   useEffect(() => {
     const fetchCats = async () => {

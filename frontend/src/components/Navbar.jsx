@@ -67,11 +67,11 @@ const Navbar = ({ onToggleSidebar }) => {
 
           <div className="dropdown">
             <button
-              className="btn btn-link text-white d-flex align-items-center gap-2 p-0 decoration-none dropdown-toggle border-0"
+              className="btn btn-link d-flex align-items-center gap-2 p-0 decoration-none dropdown-toggle border-0"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: 'none', color: '#000000' }}
             >
               {user?.avatar ? (
                 <img
@@ -85,26 +85,26 @@ const Navbar = ({ onToggleSidebar }) => {
               ) : (
                 <FaUserCircle size={32} className="text-warning" />
               )}
-              <span className="d-none d-md-inline fw-semibold text-secondary" style={{ fontSize: '14px' }}>
+              <span className="d-none d-md-inline fw-semibold text-dark" style={{ fontSize: '14px', color: '#000000' }}>
                 {user?.name || 'Administrator'}
               </span>
             </button>
 
-            <ul className="dropdown-menu dropdown-menu-end dropdown-menu-dark glass-card p-2 border-0 mt-2" style={{ width: '200px' }}>
+            <ul className="dropdown-menu dropdown-menu-end glass-card p-2 border-0 mt-2 shadow-lg" style={{ width: '200px', background: 'rgba(255, 255, 255, 0.95)' }}>
               <li>
-                <Link className="dropdown-item rounded-3 py-2" to="/profile">
+                <Link className="dropdown-item rounded-3 py-2 text-dark fw-semibold" to="/profile" style={{ color: '#000000' }}>
                   My Profile
                 </Link>
               </li>
               <li>
-                <Link className="dropdown-item rounded-3 py-2" to="/settings">
+                <Link className="dropdown-item rounded-3 py-2 text-dark fw-semibold" to="/settings" style={{ color: '#000000' }}>
                   Settings
                 </Link>
               </li>
               <li><hr className="dropdown-divider border-secondary" /></li>
               <li>
-                <button className="dropdown-item rounded-3 py-2 text-danger d-flex align-items-center gap-2" onClick={handleLogout}>
-                  <FaSignOutAlt /> Sign Out
+                <button className="dropdown-item rounded-3 py-2 text-dark fw-semibold d-flex align-items-center gap-2" onClick={handleLogout} style={{ color: '#000000' }}>
+                  <FaSignOutAlt className="text-danger" /> Sign Out
                 </button>
               </li>
             </ul>

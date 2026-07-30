@@ -149,16 +149,22 @@ const Transaction = {
   },
 
   // Get reservation records
-  getReservations: async () => {
-    const [rows] = await pool.query(`
+  getReservations: async (filters = {}) => {
+    let query = `
       SELECT r.*, 
              b.title as book_title, b.isbn as book_isbn, b.available_copies,
              s.name as student_name, s.student_id as student_roll
       FROM reservations r
       JOIN books b ON r.book_id = b.id
       JOIN students s ON r.student_id = s.id
-      ORDER BY r.reserved_date DESC
-    `);
+    `;
+    const params = [];
+    if (filters.student_id) {
+      query += ' WHERE r.student_id = ?';
+      params.push(filters.student_id);
+    }
+    query += ' ORDER BY r.reserved_date DESC';
+    const [rows] = await pool.query(query, params);
     return rows;
   },
 
@@ -171,9 +177,60 @@ const Transaction = {
     return result.insertId;
   },
 
-  updateReservationStatus: async (id, status) => {
-    const [result] = await pool.query('UPDATE reservations SET status = ? WHERE id = ?', [status, id]);
-    return result.affectedRows > 0;
+  updateReservationStatus: async (id, status, issuedBy = null) => {
+    if (status === 'fulfilled') {
+      const connection = await pool.getConnection();
+      try {
+        await connection.beginTransaction();
+
+        // 1. Get reservation record
+        const [resRows] = await connection.query('SELECT * FROM reservations WHERE id = ? FOR UPDATE', [id]);
+        if (resRows.length === 0) {
+          throw new Error('Reservation record not found.');
+        }
+        const reservation = resRows[0];
+        if (reservation.status === 'fulfilled') {
+          throw new Error('Reservation is already fulfilled.');
+        }
+
+        // 2. Check book available copies
+        const [bookRows] = await connection.query('SELECT available_copies FROM books WHERE id = ? FOR UPDATE', [reservation.book_id]);
+        if (bookRows.length === 0) {
+          throw new Error('Associated book not found.');
+        }
+        if (bookRows[0].available_copies <= 0) {
+          throw new Error('No copies available for this book to fulfill reservation.');
+        }
+
+        // 3. Create issue record
+        const today = new Date();
+        const dueDate = new Date();
+        dueDate.setDate(today.getDate() + 14); // Default 14 days loan period
+
+        await connection.query(
+          `INSERT INTO issued_books (book_id, student_id, issued_by, issued_date, due_date, status)
+           VALUES (?, ?, ?, ?, ?, 'issued')`,
+          [reservation.book_id, reservation.student_id, issuedBy, today, dueDate]
+        );
+
+        // 4. Decrement available copies
+        await connection.query('UPDATE books SET available_copies = available_copies - 1 WHERE id = ?', [reservation.book_id]);
+
+        // 5. Update reservation status
+        await connection.query('UPDATE reservations SET status = ? WHERE id = ?', [status, id]);
+
+        await connection.commit();
+        return true;
+      } catch (err) {
+        await connection.rollback();
+        throw err;
+      } finally {
+        connection.release();
+      }
+    } else {
+      const [result] = await pool.query('UPDATE reservations SET status = ? WHERE id = ?', [status, id]);
+      return result.affectedRows > 0;
+    }
   },
 
   // Fine management

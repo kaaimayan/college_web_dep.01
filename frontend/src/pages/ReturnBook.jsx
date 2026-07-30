@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTransactions, returnBook } from '../services/transactions';
+import { useLibrary } from '../context/LibraryContext';
 import SearchBar from '../components/SearchBar';
 import Loader from '../components/Loader';
 import { FaUndo, FaMoneyBillWave } from 'react-icons/fa';
@@ -14,6 +15,7 @@ const ReturnBook = () => {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { triggerRefresh } = useLibrary();
 
   const fetchIssues = async () => {
     try {
@@ -61,6 +63,7 @@ const ReturnBook = () => {
       });
 
       setSuccess(`Book returned successfully! ${res.daysOverdue > 0 ? `Logged Fine of ₹${res.fineAmount} for ${res.daysOverdue} overdue days.` : 'No fine logged.'}`);
+      triggerRefresh(); // Re-sync Dashboard available copies & Top Borrower leaderboard
       
       // Clear from active lists
       setIssues(issues.filter(i => i.id !== returningId));

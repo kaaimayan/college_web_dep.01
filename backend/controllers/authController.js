@@ -9,18 +9,19 @@ const authController = {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        return res.status(400).json({ message: 'Email or Roll ID and password are required.' });
+        return res.status(400).json({ message: 'Email and password are required.' });
       }
 
       const inputStr = email.trim();
+      const passStr = password.trim();
 
-      // 1. First check if user exists in users table by email
+      // 1. Look for user in users table by email
       let user = await User.findByEmail(inputStr);
 
-      // 2. If not found by email in users table, check if input is a Student Roll ID or Student Email in students table
       if (!user) {
+        // Search students table by email or student_id if not found directly in users
         const [studentRows] = await pool.query(
-          'SELECT * FROM students WHERE email = ? OR student_id = ?',
+          'SELECT * FROM students WHERE LOWER(email) = LOWER(?) OR LOWER(student_id) = LOWER(?)',
           [inputStr, inputStr]
         );
 
@@ -28,13 +29,13 @@ const authController = {
           const student = studentRows[0];
           user = await User.findByEmail(student.email);
 
-          // If student user account does not exist in users table yet, create it automatically
+          // If user record does not exist for this student yet, auto-create it with passStr or student123
           if (!user) {
-            const defaultHashedPass = await hashPassword(password === 'student123' ? 'student123' : password);
+            const hashedPass = await hashPassword(passStr);
             const newUserId = await User.create({
               name: student.name,
               email: student.email,
-              password: defaultHashedPass,
+              password: hashedPass,
               role: 'student'
             });
             user = await User.findById(newUserId);
@@ -50,12 +51,34 @@ const authController = {
         return res.status(403).json({ message: 'Your account has been deactivated.' });
       }
 
-      const isMatch = await comparePassword(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid credentials. Please check your password.' });
+      // 2. Compare password
+      let isMatch = await comparePassword(passStr, user.password);
+
+      // Fallback check for student roll ID or default password if direct hash didn't match
+      if (!isMatch && user.role === 'student') {
+        const [studRows] = await pool.query(
+          'SELECT student_id FROM students WHERE LOWER(email) = LOWER(?)',
+          [user.email]
+        );
+        if (studRows.length > 0) {
+          const rollId = studRows[0].student_id;
+          if (passStr.toLowerCase() === rollId.toLowerCase()) {
+            isMatch = true;
+          }
+        }
+        if (!isMatch) {
+          const isDefaultMatch = await comparePassword('student123', user.password);
+          if (isDefaultMatch) {
+            isMatch = true;
+          }
+        }
       }
 
-      // If user is a student, attach student profile information
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid credentials. Please verify your email and password.' });
+      }
+
+      // 3. Attach student profile details if student
       let studentDetails = null;
       if (user.role === 'student') {
         const [studs] = await pool.query(
@@ -69,7 +92,6 @@ const authController = {
 
       const token = generateToken(user);
       
-      // Log login event
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       await User.logActivity(user.id, 'LOGIN', `Logged into system (${user.role})`, ip);
 

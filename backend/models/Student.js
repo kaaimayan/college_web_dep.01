@@ -2,12 +2,30 @@ const pool = require('../config/db');
 
 const Student = {
   getAll: async () => {
-    const [rows] = await pool.query('SELECT * FROM students ORDER BY created_at DESC');
+    const [rows] = await pool.query(`
+      SELECT 
+        s.*,
+        COUNT(ib.id) AS total_borrowed,
+        COUNT(CASE WHEN ib.status = 'issued' THEN 1 END) AS active_borrowed
+      FROM students s
+      LEFT JOIN issued_books ib ON s.id = ib.student_id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+    `);
     return rows;
   },
 
   findById: async (id) => {
-    const [rows] = await pool.query('SELECT * FROM students WHERE id = ?', [id]);
+    const [rows] = await pool.query(`
+      SELECT 
+        s.*,
+        COUNT(ib.id) AS total_borrowed,
+        COUNT(CASE WHEN ib.status = 'issued' THEN 1 END) AS active_borrowed
+      FROM students s
+      LEFT JOIN issued_books ib ON s.id = ib.student_id
+      WHERE s.id = ?
+      GROUP BY s.id
+    `, [id]);
     return rows[0];
   },
 
@@ -59,9 +77,15 @@ const Student = {
   search: async (queryStr) => {
     const term = `%${queryStr}%`;
     const [rows] = await pool.query(
-      `SELECT * FROM students 
-       WHERE student_id LIKE ? OR name LIKE ? OR email LIKE ? OR department LIKE ? 
-       ORDER BY name ASC`,
+      `SELECT 
+        s.*,
+        COUNT(ib.id) AS total_borrowed,
+        COUNT(CASE WHEN ib.status = 'issued' THEN 1 END) AS active_borrowed
+       FROM students s
+       LEFT JOIN issued_books ib ON s.id = ib.student_id
+       WHERE s.student_id LIKE ? OR s.name LIKE ? OR s.email LIKE ? OR s.department LIKE ? 
+       GROUP BY s.id
+       ORDER BY s.name ASC`,
       [term, term, term, term]
     );
     return rows;

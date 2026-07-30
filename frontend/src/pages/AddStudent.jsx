@@ -7,8 +7,9 @@ const AddStudent = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     student_id: '',
-    name: 'your name',
-    email: 'some@gmail.com',
+    name: '',
+    email: '',
+    password: '',
     phone: '',
     department: 'Computer Science',
     year: 1,
@@ -51,7 +52,7 @@ const AddStudent = () => {
         </button>
         <div>
           <h4 className="fw-bold text-white mb-1">Add New Student</h4>
-          <p className="text-secondary mb-0 fs-7">Register a student record for borrowing privileges.</p>
+          <p className="text-secondary mb-0 fs-7">Register a student record for borrowing privileges and student portal login.</p>
         </div>
       </div>
 
@@ -78,6 +79,13 @@ const AddStudent = () => {
               <div className="mb-3">
                 <label className="form-label text-secondary fs-7 fw-semibold">EMAIL ADDRESS *</label>
                 <input type="email" name="email" className="form-control custom-input" placeholder="e.g. student@krartsscience.edu" value={formData.email} onChange={handleChange} required />
+              </div>
+            </div>
+
+            <div className="col-12 col-md-6">
+              <div className="mb-3">
+                <label className="form-label text-secondary fs-7 fw-semibold">LOGIN PASSWORD (OPTIONAL)</label>
+                <input type="password" name="password" className="form-control custom-input" placeholder="Default is Roll ID if left blank" value={formData.password} onChange={handleChange} />
               </div>
             </div>
 

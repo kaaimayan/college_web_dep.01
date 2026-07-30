@@ -4,6 +4,7 @@ import DashboardCard from '../components/DashboardCard';
 import TopStudentCard from '../components/TopStudentCard';
 import Loader from '../components/Loader';
 import { useAuth } from '../context/AuthContext';
+import { useLibrary } from '../context/LibraryContext';
 import { Link } from 'react-router-dom';
 import { FaBook, FaUserGraduate, FaHandHolding, FaUndo, FaMoneyBill, FaClock, FaBookReader, FaTrophy } from 'react-icons/fa';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -39,6 +40,7 @@ const Dashboard = () => {
   const [error, setError] = useState('');
 
   const isStudent = user?.role === 'student';
+  const { refreshKey } = useLibrary();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,7 +55,7 @@ const Dashboard = () => {
       }
     };
     fetchStats();
-  }, []);
+  }, [refreshKey]);
 
   if (loading) return <Loader message="Generating analytics dashboards..." />;
   if (error) return <div className="alert alert-danger bg-danger bg-opacity-10 text-danger border-0">{error}</div>;
@@ -100,19 +102,19 @@ const Dashboard = () => {
     plugins: {
       legend: {
         labels: {
-          color: '#94a3b8',
-          font: { family: 'Poppins' }
+          color: '#000000',
+          font: { family: 'Poppins', weight: 'bold' }
         }
       }
     },
     scales: {
       y: {
-        grid: { color: 'rgba(255, 255, 255, 0.05)' },
-        ticks: { color: '#94a3b8', font: { family: 'Poppins' } }
+        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+        ticks: { color: '#000000', font: { family: 'Poppins' } }
       },
       x: {
         grid: { display: false },
-        ticks: { color: '#94a3b8', font: { family: 'Poppins' } }
+        ticks: { color: '#000000', font: { family: 'Poppins' } }
       }
     }
   };
@@ -124,7 +126,7 @@ const Dashboard = () => {
       legend: {
         position: 'right',
         labels: {
-          color: '#94a3b8',
+          color: '#000000',
           font: { family: 'Poppins', size: 10 }
         }
       }

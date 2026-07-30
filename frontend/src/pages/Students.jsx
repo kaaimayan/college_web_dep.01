@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStudents, deleteStudent, searchStudents } from '../services/students';
 import { useAuth } from '../context/AuthContext';
+import { useLibrary } from '../context/LibraryContext';
 import SearchBar from '../components/SearchBar';
 import TopStudentCard from '../components/TopStudentCard';
 import Loader from '../components/Loader';
@@ -17,6 +18,7 @@ const Students = () => {
   const [studentToDelete, setStudentToDelete] = useState(null);
 
   const isStudent = user?.role === 'student';
+  const { refreshKey } = useLibrary();
 
   const fetchStudents = async () => {
     try {
@@ -36,7 +38,7 @@ const Students = () => {
 
   useEffect(() => {
     fetchStudents();
-  }, [search]);
+  }, [search, refreshKey]);
 
   const handleDeleteConfirm = async () => {
     if (!studentToDelete) return;
@@ -93,6 +95,7 @@ const Students = () => {
                   <th>Student Name</th>
                   <th>Department</th>
                   <th>Year</th>
+                  <th>Books Borrowed</th>
                   <th>Email</th>
                   <th>Status</th>
                   {!isStudent && <th className="text-end">Actions</th>}
@@ -113,6 +116,14 @@ const Students = () => {
                       </td>
                       <td>{student.department}</td>
                       <td>Year {student.year}</td>
+                      <td>
+                        <span className="badge bg-warning-subtle text-warning px-2.5 py-1">
+                          {student.active_borrowed || 0} Active
+                        </span>
+                        <span className="text-secondary fs-8 ms-1.5">
+                          ({student.total_borrowed || 0} Total)
+                        </span>
+                      </td>
                       <td>{student.email}</td>
                       <td>
                         <span className={`badge ${student.is_active ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} px-2.5 py-1.5`}>
@@ -135,7 +146,7 @@ const Students = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={isStudent ? "6" : "7"} className="text-center text-secondary py-5">No student records registered.</td>
+                    <td colSpan={isStudent ? "7" : "8"} className="text-center text-secondary py-5">No student records registered.</td>
                   </tr>
                 )}
               </tbody>

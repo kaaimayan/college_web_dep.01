@@ -64,7 +64,7 @@ const studentController = {
 
   createStudent: async (req, res) => {
     try {
-      const { student_id, name, email, phone, department, year, address } = req.body;
+      const { student_id, name, email, password, phone, department, year, address } = req.body;
 
       if (!student_id || !name || !email || !department || !year) {
         return res.status(400).json({ message: 'Roll ID, Name, Email, Department and Year are required.' });
@@ -83,16 +83,20 @@ const studentController = {
         student_id, name, email, phone, department, year, address, photo
       });
 
-      // Also create corresponding user account for student login if not existing
+      // Also create/update corresponding user account for student login
       const existingUser = await User.findByEmail(email);
+      const rawPass = (password && password.trim()) ? password.trim() : student_id.trim();
+      const hashedPassword = await hashPassword(rawPass);
+
       if (!existingUser) {
-        const hashedPassword = await hashPassword('student123');
         await User.create({
           name,
           email,
           password: hashedPassword,
           role: 'student'
         });
+      } else {
+        await User.updatePassword(existingUser.id, hashedPassword);
       }
 
       // Log action
