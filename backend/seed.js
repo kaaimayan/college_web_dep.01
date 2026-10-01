@@ -5,13 +5,32 @@ const { hashPassword } = require('./utils/hashPassword');
 require('dotenv').config();
 
 const seed = async () => {
-  const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
-  const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306, 10);
-  const user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
-  const password = process.env.DB_PASSWORD !== undefined 
-    ? process.env.DB_PASSWORD 
-    : (process.env.MYSQLPASSWORD !== undefined ? process.env.MYSQLPASSWORD : '');
-  const dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'library_for_college';
+  const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+  let host, port, user, password, dbName;
+
+  if (dbUrl) {
+    try {
+      const parsedUrl = new URL(dbUrl);
+      host = parsedUrl.hostname;
+      port = parseInt(parsedUrl.port || '3306', 10);
+      user = decodeURIComponent(parsedUrl.username);
+      password = decodeURIComponent(parsedUrl.password);
+      dbName = parsedUrl.pathname.replace(/^\//, '') || 'library_for_college';
+    } catch (e) {
+      // Fallback
+    }
+  }
+
+  if (!host) {
+    host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
+    port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306, 10);
+    user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
+    password = process.env.DB_PASSWORD !== undefined 
+      ? process.env.DB_PASSWORD 
+      : (process.env.MYSQLPASSWORD !== undefined ? process.env.MYSQLPASSWORD : '');
+    dbName = process.env.DB_NAME || process.env.MYSQLDATABASE || 'library_for_college';
+  }
 
   const connConfig = {
     host,

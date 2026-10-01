@@ -1,20 +1,39 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
-const port = parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306, 10);
-const user = process.env.DB_USER || process.env.MYSQLUSER || 'root';
-const password = process.env.DB_PASSWORD !== undefined 
-  ? process.env.DB_PASSWORD 
-  : (process.env.MYSQLPASSWORD !== undefined ? process.env.MYSQLPASSWORD : '');
-const database = process.env.DB_NAME || process.env.MYSQLDATABASE || 'library_for_college';
+const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
 
-const poolConfig = {
-  host,
-  port,
-  user,
-  password,
-  database,
+let poolConfig = {};
+
+if (dbUrl) {
+  try {
+    const parsedUrl = new URL(dbUrl);
+    poolConfig = {
+      host: parsedUrl.hostname,
+      port: parseInt(parsedUrl.port || '3306', 10),
+      user: decodeURIComponent(parsedUrl.username),
+      password: decodeURIComponent(parsedUrl.password),
+      database: parsedUrl.pathname.replace(/^\//, '') || 'library_for_college'
+    };
+  } catch (err) {
+    console.error('Note: Unable to parse MYSQL_URL/DATABASE_URL, falling back to individual env variables.');
+  }
+}
+
+if (!poolConfig.host) {
+  poolConfig = {
+    host: process.env.DB_HOST || process.env.MYSQLHOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || process.env.MYSQLPORT || 3306, 10),
+    user: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+    password: process.env.DB_PASSWORD !== undefined 
+      ? process.env.DB_PASSWORD 
+      : (process.env.MYSQLPASSWORD !== undefined ? process.env.MYSQLPASSWORD : ''),
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE || 'library_for_college'
+  };
+}
+
+poolConfig = {
+  ...poolConfig,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -32,7 +51,7 @@ const pool = mysql.createPool(poolConfig);
 (async () => {
   try {
     const connection = await pool.getConnection();
-    console.log(`Database connected successfully to ${host}:${port}/${database}`);
+    console.log(`Database connected successfully to ${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
     
     // Self-healing migration: update role column for students
     try {

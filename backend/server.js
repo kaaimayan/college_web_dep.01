@@ -33,18 +33,17 @@ app.use(cors({
       'http://127.0.0.1:5000'
     ];
 
-    // Add the deployed frontend URL from environment variable
-    if (process.env.FRONTEND_URL) {
-      // Strip trailing slashes and /login path for clean origin matching
-      const frontendOrigin = process.env.FRONTEND_URL.replace(/\/+$/, '').replace(/\/login$/, '');
-      allowedOrigins.push(frontendOrigin);
-    }
+    const envUrls = [process.env.FRONTEND_URL, process.env.CLIENT_URL].filter(Boolean);
+    envUrls.forEach(url => {
+      const cleanUrl = url.replace(/\/+$/, '').replace(/\/login$/, '');
+      allowedOrigins.push(cleanUrl);
+    });
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
 
-    return callback(new Error('CORS Policy Blocked'), false);
+    return callback(new Error(`CORS Policy Blocked for origin: ${origin}`), false);
   },
   credentials: true
 }));
