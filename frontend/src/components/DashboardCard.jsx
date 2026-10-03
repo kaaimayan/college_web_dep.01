@@ -32,7 +32,7 @@ const DashboardCard = ({ title, value, icon, color = 'var(--accent-gold)' }) => 
   return (
     <div 
       ref={cardRef}
-      className="glass-card stat-card h-100 d-flex flex-column justify-content-between"
+      className="glass-card stat-card h-100 d-flex flex-column justify-content-between p-3 p-md-4"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -41,17 +41,17 @@ const DashboardCard = ({ title, value, icon, color = 'var(--accent-gold)' }) => 
         cursor: 'pointer'
       }}
     >
-      <div className="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <span className="text-secondary fw-semibold text-uppercase fs-8 mb-2 d-block" style={{ letterSpacing: '1px' }}>
+      <div className="d-flex justify-content-between align-items-start mb-2 mb-md-3">
+        <div className="min-w-0 pe-1">
+          <span className="text-secondary fw-semibold text-uppercase fs-9 fs-md-8 mb-1 mb-md-2 d-block text-truncate" style={{ letterSpacing: '0.8px' }}>
             {title}
           </span>
-          <h2 className="fw-bold mb-0 text-black" style={{ fontSize: '32px' }}>
+          <h2 className="fw-bold mb-0 text-black stat-value" style={{ fontSize: 'clamp(20px, 4vw, 30px)' }}>
             {value}
           </h2>
         </div>
         <div 
-          className="stat-icon-wrapper" 
+          className="stat-icon-wrapper flex-shrink-0" 
           style={{ 
             background: `linear-gradient(135deg, ${color}, rgba(15, 23, 42, 0.8))`,
             color: color

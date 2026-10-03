@@ -776,22 +776,156 @@ p, span, td, label, input, select, textarea, div:not(.stat-icon-wrapper), a:not(
   }
 }
 
-/* Responsive sidebar collapse */
+/* Clay Icon Button (for Navbar toggles, bell, and close triggers) */
+.btn-clay-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 3px 5px 12px rgba(37, 99, 235, 0.08), inset -2px -2px 4px rgba(37, 99, 235, 0.04), inset 2px 2px 4px #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--heading-color) !important;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-clay-icon:hover, .btn-clay-icon:focus {
+  transform: translateY(-2px);
+  box-shadow: 4px 8px 16px rgba(37, 99, 235, 0.15), inset -2px -2px 4px rgba(37, 99, 235, 0.06), inset 2px 2px 4px #ffffff !important;
+  color: var(--accent-gold) !important;
+}
+
+.btn-clay-icon:active {
+  transform: translateY(1px);
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Sidebar Backdrop on Mobile */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1040;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Navbar Logo and Title Scaling */
+.navbar-logo-wrap img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: width 0.2s, height 0.2s;
+}
+
+.navbar-college-title {
+  font-size: 16px;
+  letter-spacing: 0.4px;
+}
+
+/* ========================================================================= */
+/* COMPREHENSIVE RESPONSIVE STYLES (TABLETS & MOBILE)                        */
+/* ========================================================================= */
+
 @media (max-width: 992px) {
   .app-sidebar {
     transform: translateX(-100%);
+    z-index: 1050;
+    box-shadow: 16px 0 40px rgba(15, 23, 42, 0.2) !important;
+    width: 280px;
+    max-width: 85vw;
   }
   .app-sidebar.show {
     transform: translateX(0);
   }
   .app-navbar {
-    width: 100%;
-    margin-left: 0;
-    padding: 0 20px;
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 14px !important;
+    height: 66px !important;
+    border-radius: 0 0 20px 20px !important;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
   }
   .app-content {
-    margin-left: 0;
-    width: 100%;
-    padding: 20px;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 16px 12px !important;
+    min-height: calc(100vh - 66px);
+  }
+  .glass-card, .clay-card {
+    border-radius: 20px !important;
+    padding: 18px 14px !important;
+  }
+  .stat-icon-wrapper {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 14px !important;
+    font-size: 20px !important;
+    margin-bottom: 0 !important;
+  }
+  .custom-table th, .custom-table td {
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+  }
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-logo-wrap img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .navbar-college-title {
+    font-size: 13px !important;
+  }
+  .btn-clay-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+  .stat-icon-wrapper {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 18px !important;
+    border-radius: 12px !important;
+  }
+  .btn-gold, .btn-primary, .btn-outline-gold, .btn-outline-primary {
+    padding: 10px 18px !important;
+    font-size: 13.5px !important;
+    border-radius: 14px !important;
+  }
+  .custom-input, input, select, textarea {
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    border-radius: 14px !important;
+  }
+  .login-card-3d {
+    width: 100% !important;
+    padding: 26px 18px !important;
+    border-radius: 22px !important;
+  }
+  .college-logo-3d {
+    width: 82px !important;
+    height: 82px !important;
+    margin-bottom: 14px !important;
   }
 }

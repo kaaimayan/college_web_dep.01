@@ -35,12 +35,26 @@ const Sidebar = ({ show, onToggleSidebar }) => {
   return (
     <aside className={`app-sidebar ${show ? 'show' : ''}`}>
       {/* Sidebar Header */}
-      <div className="app-sidebar-logo">
-        <LogoSVG />
-        <div className="d-flex flex-column">
-          <span className="fw-bold text-blue fs-6 mb-0" style={{ letterSpacing: '0.5px' }}>KR COLLEGE</span>
-          <span className="text-secondary fw-semibold" style={{ fontSize: '10px' }}>LMS PLATFORM</span>
+      <div className="app-sidebar-logo d-flex justify-content-between align-items-center">
+        <div className="d-flex align-items-center gap-2">
+          <LogoSVG />
+          <div className="d-flex flex-column">
+            <span className="fw-bold text-blue fs-6 mb-0" style={{ letterSpacing: '0.5px' }}>KR COLLEGE</span>
+            <span className="text-secondary fw-semibold" style={{ fontSize: '10px' }}>LMS PLATFORM</span>
+          </div>
         </div>
+        <button 
+          type="button" 
+          className="btn btn-clay-icon d-lg-none p-1" 
+          onClick={onToggleSidebar}
+          aria-label="Close Sidebar"
+          style={{ width: '32px', height: '32px' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
 
       {/* Navigation Menu */}

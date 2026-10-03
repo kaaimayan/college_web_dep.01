@@ -54,72 +54,76 @@ const TopStudentCard = () => {
         }}
       ></div>
 
-      <div className="p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '16px' }}>
+      <div className="p-3 p-sm-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '16px' }}>
         {/* Header Title */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="d-flex align-items-center gap-2">
-            <div className="p-2 rounded-circle bg-warning bg-opacity-20 text-warning d-flex align-items-center justify-content-center">
-              <FaCrown size={20} />
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <div className="d-flex align-items-center gap-2 min-w-0">
+            <div className="p-2 rounded-circle bg-warning bg-opacity-20 text-warning d-flex align-items-center justify-content-center flex-shrink-0">
+              <FaCrown size={18} />
             </div>
-            <div>
-              <h5 className="fw-bold mb-0 uppercase" style={{ letterSpacing: '0.5px' }}>
+            <div className="min-w-0">
+              <h5 className="fw-bold mb-0 uppercase fs-6 fs-sm-5 text-truncate" style={{ letterSpacing: '0.5px' }}>
                 TOP BORROWER RANKING
               </h5>
-              <p className="text-secondary mb-0 fs-8">Recognizing our most avid reader & book borrower</p>
+              <p className="text-secondary mb-0 fs-8 d-none d-sm-block">Recognizing our most avid reader &amp; book borrower</p>
             </div>
           </div>
-          <span className="badge bg-warning text-dark fw-bold px-3 py-1.5 rounded-pill fs-8 d-flex align-items-center gap-1 shadow-sm">
-            <FaStar /> STAR READER
+          <span className="badge bg-warning text-dark fw-bold px-2.5 py-1 rounded-pill fs-8 d-flex align-items-center gap-1 shadow-sm flex-shrink-0">
+            <FaStar size={11} /> STAR READER
           </span>
         </div>
 
         {/* Highlighted #1 Top Student Card */}
         {topStudent && (
           <div 
-            className="p-3.5 rounded-4 mb-3 position-relative"
+            className="p-3 rounded-4 mb-3 position-relative"
             style={{ 
               background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%)',
               border: '1px solid rgba(245, 158, 11, 0.4)',
               backdropFilter: 'blur(10px)'
             }}
           >
-            <div className="row align-items-center g-3">
-              <div className="col-auto position-relative">
-                <div 
-                  className="rounded-circle d-flex align-items-center justify-content-center border border-2 border-warning shadow"
-                  style={{ width: '64px', height: '64px', background: 'rgba(255, 255, 255, 0.9)', overflow: 'hidden' }}
-                >
-                  {topStudent.photo ? (
-                    <img src={resolveAssetURL(topStudent.photo)} alt={topStudent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <FaUserGraduate size={30} className="text-warning" />
-                  )}
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div className="d-flex align-items-center gap-2 gap-sm-3 min-w-0">
+                <div className="position-relative flex-shrink-0">
+                  <div 
+                    className="rounded-circle d-flex align-items-center justify-content-center border border-2 border-warning shadow"
+                    style={{ width: '54px', height: '54px', background: 'rgba(255, 255, 255, 0.95)', overflow: 'hidden' }}
+                  >
+                    {topStudent.photo ? (
+                      <img src={resolveAssetURL(topStudent.photo)} alt={topStudent.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <FaUserGraduate size={26} className="text-warning" />
+                    )}
+                  </div>
+                  <div 
+                    className="position-absolute translate-middle-x bg-warning text-dark rounded-circle p-0.5 d-flex align-items-center justify-content-center shadow"
+                    style={{ bottom: '-6px', left: '50%', width: '22px', height: '22px' }}
+                  >
+                    <FaTrophy size={11} />
+                  </div>
                 </div>
-                <div 
-                  className="position-absolute translate-middle-x bg-warning text-dark rounded-circle p-1 d-flex align-items-center justify-content-center shadow"
-                  style={{ bottom: '-8px', left: '50%', width: '24px', height: '24px' }}
-                >
-                  <FaTrophy size={12} />
+
+                <div className="min-w-0">
+                  <div className="d-flex align-items-center gap-1.5 mb-0.5">
+                    <span className="badge bg-gold-gradient text-dark fw-bold fs-9 px-1.5 py-0.5">RANK #1</span>
+                    <span className="text-warning fw-bold fs-8">{topStudent.student_id}</span>
+                  </div>
+                  <h5 className="fw-bold mb-0 fs-6 fs-sm-5 text-truncate" style={{ maxWidth: '180px' }}>{topStudent.name}</h5>
+                  <p className="text-secondary fs-8 mb-0 text-truncate" style={{ maxWidth: '180px' }}>
+                    {topStudent.department} • Year {topStudent.year}
+                  </p>
                 </div>
               </div>
 
-              <div className="col">
-                <div className="d-flex align-items-center gap-2 mb-1">
-                  <span className="badge bg-gold-gradient text-dark fw-bold fs-9 px-2 py-0.5">RANK #1</span>
-                  <span className="text-warning fw-bold fs-8">{topStudent.student_id}</span>
-                </div>
-                <h5 className="fw-bold mb-1">{topStudent.name}</h5>
-                <p className="text-secondary fs-8 mb-0">
-                  {topStudent.department} • Year {topStudent.year}
-                </p>
-              </div>
-
-              <div className="col-auto text-end">
-                <div className="bg-white bg-opacity-80 rounded-3 p-2 border border-warning border-opacity-30 text-center shadow-sm">
+              <div className="ms-auto flex-shrink-0 text-end">
+                <div className="bg-white bg-opacity-95 rounded-3 px-3 py-1.5 border border-warning border-opacity-40 text-center shadow-sm">
                   <div className="fs-4 fw-extrabold text-warning leading-none">
                     {topStudent.total_borrowed}
                   </div>
-                  <div className="text-secondary fs-9 fw-semibold uppercase">Books Borrowed</div>
+                  <div className="text-secondary fw-bold uppercase" style={{ fontSize: '9px', letterSpacing: '0.4px' }}>
+                    Books Borrowed
+                  </div>
                 </div>
               </div>
             </div>

@@ -46,6 +46,15 @@ const Layout = () => {
       {/* Sidebar Navigation */}
       <Sidebar show={sidebarShow} onToggleSidebar={toggleSidebar} />
 
+      {/* Backdrop overlay for mobile drawer */}
+      {sidebarShow && (
+        <div 
+          className="sidebar-backdrop d-lg-none" 
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Main Container */}
       <div className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
         {/* Top Sticky Header */}

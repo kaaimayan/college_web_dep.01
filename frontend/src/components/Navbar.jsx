@@ -28,38 +28,46 @@ const Navbar = ({ onToggleSidebar }) => {
   };
 
   return (
-    <nav className="app-navbar navbar navbar-expand-lg">
-      <div className="container-fluid p-0 d-flex justify-content-between align-items-center">
+    <nav className="app-navbar navbar">
+      <div className="container-fluid p-0 d-flex justify-content-between align-items-center flex-nowrap w-100">
         {/* Left branding */}
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center gap-2 gap-sm-3 min-w-0" style={{ maxWidth: 'calc(100% - 100px)' }}>
           <button
-            className="btn btn-link text-white d-lg-none p-0 me-2"
+            type="button"
+            className="btn btn-clay-icon d-lg-none flex-shrink-0"
             onClick={onToggleSidebar}
             aria-label="Toggle Navigation"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
 
-          <LogoSVG />
+          <div className="navbar-logo-wrap flex-shrink-0">
+            <LogoSVG />
+          </div>
 
-          <div className="d-flex flex-column">
-            <span className="fs-5 fw-bold text-blue mb-0" style={{ letterSpacing: '0.5px' }}>
-              KR Arts And Science College
+          <div className="d-flex flex-column min-w-0">
+            <span className="fw-bold text-blue mb-0 text-truncate navbar-college-title" style={{ letterSpacing: '0.4px' }}>
+              KR Arts &amp; Science College
             </span>
-            <span className="text-secondary fw-medium" style={{ fontSize: '10.5px', letterSpacing: '0.8px' }}>
+            <span className="text-secondary fw-medium navbar-college-subtitle d-none d-sm-block text-truncate" style={{ fontSize: '10.5px', letterSpacing: '0.8px' }}>
               உள்ளுவதெல்லாம் உயர்வுள்ளல்
             </span>
           </div>
         </div>
 
         {/* Right Info */}
-        <div className="d-flex align-items-center gap-4">
-          <button className="btn btn-link text-secondary p-0 position-relative" style={{ transition: 'color 0.3s' }}>
-            <FaBell size={20} />
+        <div className="d-flex align-items-center gap-2 gap-sm-3 flex-shrink-0">
+          <button 
+            type="button"
+            className="btn btn-clay-icon position-relative" 
+            style={{ transition: 'color 0.3s' }}
+            aria-label="Notifications"
+          >
+            <FaBell size={17} />
             <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
               <span className="visually-hidden">New alerts</span>
             </span>
@@ -67,7 +75,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
           <div className="dropdown">
             <button
-              className="btn btn-link d-flex align-items-center gap-2 p-0 decoration-none dropdown-toggle border-0"
+              className="btn btn-link d-flex align-items-center gap-1 gap-sm-2 p-0 decoration-none dropdown-toggle border-0"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -78,19 +86,19 @@ const Navbar = ({ onToggleSidebar }) => {
                   src={user.avatar}
                   alt="avatar"
                   className="rounded-circle border border-warning"
-                  width="36"
-                  height="36"
+                  width="34"
+                  height="34"
                   style={{ objectFit: 'cover' }}
                 />
               ) : (
-                <FaUserCircle size={32} className="text-warning" />
+                <FaUserCircle size={30} className="text-warning" />
               )}
-              <span className="d-none d-md-inline fw-semibold text-dark" style={{ fontSize: '14px', color: '#000000' }}>
+              <span className="d-none d-md-inline fw-semibold text-dark text-truncate" style={{ maxWidth: '120px', fontSize: '13.5px', color: '#000000' }}>
                 {user?.name || 'Administrator'}
               </span>
             </button>
 
-            <ul className="dropdown-menu dropdown-menu-end glass-card p-2 border-0 mt-2 shadow-lg" style={{ width: '200px', background: 'rgba(255, 255, 255, 0.95)' }}>
+            <ul className="dropdown-menu dropdown-menu-end glass-card p-2 border-0 mt-2 shadow-lg" style={{ width: '200px', background: 'rgba(255, 255, 255, 0.98)' }}>
               <li>
                 <Link className="dropdown-item rounded-3 py-2 text-dark fw-semibold" to="/profile" style={{ color: '#000000' }}>
                   My Profile
@@ -101,7 +109,7 @@ const Navbar = ({ onToggleSidebar }) => {
                   Settings
                 </Link>
               </li>
-              <li><hr className="dropdown-divider border-secondary" /></li>
+              <li><hr className="dropdown-divider border-secondary my-1" /></li>
               <li>
                 <button className="dropdown-item rounded-3 py-2 text-dark fw-semibold d-flex align-items-center gap-2" onClick={handleLogout} style={{ color: '#000000' }}>
                   <FaSignOutAlt className="text-danger" /> Sign Out

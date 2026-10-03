@@ -134,20 +134,20 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="d-flex flex-column gap-4">
+    <div className="d-flex flex-column gap-3 gap-md-4">
       {/* Welcome Message */}
-      <div className="d-flex justify-content-between align-items-center mb-1">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-1">
         <div>
-          <h4 className="fw-bold text-blue mb-1">
+          <h4 className="fw-bold text-blue mb-1 fs-5 fs-sm-4">
             {isStudent ? `Welcome back, ${user?.name || 'Student'}!` : 'KR Arts & Science College - Library Console'}
           </h4>
           <p className="text-secondary mb-0 fs-7">
             {isStudent ? 'Explore books, read digital e-books, and check student borrowing rankings.' : 'Real-time status monitor and transaction management platform.'}
           </p>
         </div>
-        <div className="text-end">
-          <span className="badge bg-dark bg-opacity-50 text-warning px-3 py-2 fs-7 border border-secondary rounded-3">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        <div className="text-start text-sm-end mt-1 mt-sm-0 flex-shrink-0">
+          <span className="badge bg-dark bg-opacity-50 text-warning px-3 py-1.5 fs-8 border border-secondary rounded-3 shadow-sm">
+            {new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
           </span>
         </div>
       </div>
@@ -159,24 +159,24 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Counters Grid */}
-      <div className="row g-4">
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+      {/* Counters Grid - 2 columns on mobile, 6 on desktop */}
+      <div className="row g-2.5 g-sm-3 g-md-4">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Total Books" value={stats.totalBooks} icon={<FaBook />} color="var(--accent-gold)" />
         </div>
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Available Copies" value={stats.availableBooks} icon={<FaBook />} color="#10b981" />
         </div>
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Issued Books" value={stats.issuedBooks} icon={<FaHandHolding />} color="#6366f1" />
         </div>
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Total Students" value={stats.totalStudents} icon={<FaUserGraduate />} color="#0ea5e9" />
         </div>
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Overdue Books" value={stats.overdueBooks} icon={<FaClock />} color="#ef4444" />
         </div>
-        <div className="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div className="col-6 col-sm-6 col-lg-4 col-xl-2">
           <DashboardCard title="Fines Registry" value={`₹${stats.fineCollected}`} icon={<FaMoneyBill />} color="#ec4899" />
         </div>
       </div>
