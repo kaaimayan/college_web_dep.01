@@ -40,8 +40,13 @@ const seed = async () => {
     multipleStatements: true
   };
 
-  if (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') {
-    connConfig.ssl = { rejectUnauthorized: false };
+  if (
+    process.env.DB_SSL === 'true' || 
+    process.env.MYSQL_SSL === 'true' || 
+    (host && host.includes('tidbcloud.com')) ||
+    (dbUrl && (dbUrl.includes('ssl=') || dbUrl.includes('sslmode=')))
+  ) {
+    connConfig.ssl = { minVersion: 'TLSv1.2', rejectUnauthorized: false };
   }
 
   let connection;

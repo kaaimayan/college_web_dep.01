@@ -41,8 +41,13 @@ poolConfig = {
   keepAliveInitialDelay: 0
 };
 
-if (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') {
-  poolConfig.ssl = { rejectUnauthorized: false };
+if (
+  process.env.DB_SSL === 'true' || 
+  process.env.MYSQL_SSL === 'true' || 
+  (poolConfig.host && poolConfig.host.includes('tidbcloud.com')) ||
+  (dbUrl && (dbUrl.includes('ssl=') || dbUrl.includes('sslmode=')))
+) {
+  poolConfig.ssl = { minVersion: 'TLSv1.2', rejectUnauthorized: false };
 }
 
 const pool = mysql.createPool(poolConfig);
